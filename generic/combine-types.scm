@@ -1,0 +1,6 @@
+(define (scheme-number->complex n)
+  (make-complex-from-real-imag (contents n) 0))
+(put-coercion 'scheme-number 'complex scheme-number->complex)
+(define x (make-complex-from-mag-ang 1 3.1415926535))
+(define y (make-scheme-number 1))
+(add x y)

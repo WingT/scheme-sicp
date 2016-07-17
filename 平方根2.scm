@@ -1,0 +1,10 @@
+(define (fixed-point f guess)
+  (define next (f guess))
+  (if (< (abs (- guess next)) 0.00001)
+      guess
+      (fixed-point f next)))
+(define (average-damp f)
+  (lambda (x) (/ (+ x (f x)) 2)))
+(define (squareroot x)
+  (fixed-point (average-damp (lambda (y) (/ x y))) 1.0))
+(squareroot 2)

@@ -1,0 +1,52 @@
+;balance在全局环境里，没什么好说的
+(define balance 100)
+(define (withdraw amount)
+  (if (>= balance amount)
+      (begin (set! balance (- balance amount))
+             balance)
+      "insufficent funds"))
+;求值new-withdraw时，创建了一个环境，在这个环境里有balance,还有做为值返回的过程，因此balance对这个过程是独立的
+(define new-withdraw
+  (let ((balance 100))
+    (lambda (amount)
+      (if (>= balance amount)
+          (begin (set! balance (- balance amount))
+                 balance)
+          "insufficent funds"))))
+;这个版本和前者一样,将let还原为lambda表达式
+(define new-withdraw-1
+  (lambda (balance)
+      (lambda (amount)
+        (if (>= balance amount)
+            (begin (set! balance (- balance amount))
+                   balance)
+            "insufficent funds"))))
+;this is a wrong version,注意这里的返回值是整个过程，不像new-withdraw那样是某个环境里面的过程,balance和过程不独立，也就是说，每运行一次，balance都会设为100
+(define (new-withdraw-2 amount)
+  (let ((balance 100))
+    (if (> balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "insufficient funds")))
+;this is a wrong version,错误原因和前者一样
+(define (new-withdraw-3 amount)
+  (define balance 100)
+  (if (>= balance amount)
+      (begin (set! balance (- balance amount))
+             balance)
+      "insufficent funds"))
+;思考一下 (define (x) (exp1) (exp2)...)中之所以允许多个表达式顺序求值，是因为 (define x (lambda (x) (exp1) (exp2)...))中lambda表达式运行这样做,这样一来，没办法将balance和withdraw独立
+(define new-withdraw-4
+  (lambda (amount)
+    (define balance 100)
+    (if (>= balance amount)
+      (begin (set! balance (- balance amount))
+             balance)
+      "insufficent funds")))
+(withdraw 10)
+(new-withdraw 10)
+(define withdraw-1 (new-withdraw-1 100))
+(new-withdraw-2 10)
+(withdraw-1 10)
+(new-withdraw-3 10)
+(new-withdraw-4 10)

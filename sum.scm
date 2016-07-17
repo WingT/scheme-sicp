@@ -1,0 +1,11 @@
+(define (sum term a next b)
+  (define (sum-iter a ans)
+    (if (> a b)
+        ans
+        (sum-iter (next a) (+ ans (term a)))))
+  (sum-iter a 0))
+(define (integral f a b dx)
+  (define (next x) (+ x dx))
+  (define (term x) (* (f x) dx))
+  (sum term (+ a (/ dx 2.0)) next b))
+(integral (lambda (x) (* x x x)) 0 1 0.001)

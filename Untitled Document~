@@ -1,0 +1,13 @@
+bal-set-key (kbd "M-<right>") 'paredit-forward-slurp-sexp)
+(global(glo-set-key (kbd "M-<left>") 'paredit-forward-barf-sexp)
+(global-linum-mode t)
+(defun scheme-send-all ()
+  (interactive)
+  (mark-whole-buffer)
+  (scheme-send-region (point-min) (point-max)))
+(add-hook 'scheme-mode-hook
+          (lambda ()
+            (define-key scheme-mode-map (kbd "<f5>")
+              'scheme-send-all)
+            (define-key scheme-mode-map (kbd "<f6>")
+              'scheme-send-last-sexp)))

@@ -1,0 +1,71 @@
+;3.16
+(define (count-pairs x)
+  (if (not (pair? x))
+      0
+      (+ (count-pairs (car x))
+         (count-pairs (cdr x))
+         1)))
+;;4个
+(define x '(a b))
+(define y (cons (cdr x) x))
+(count-pairs y)
+;;7个
+(define x '(a))
+(define y (cons x x))
+(define z (cons y y))
+;3.17
+(define (safe-count-pairs x)
+  (define (rec-trace x trace)
+    (if (or (not (pair? x)) (memq x trace))
+        trace
+        (rec-trace (cdr x) (rec-trace (car x) (cons x trace)))))
+  (define (length seq len)
+    (if (null? seq)
+        len
+        (length (cdr seq) (+ len 1))))
+  (length (rec-trace x '()) 0))
+;3.18
+(define (last-pair x)
+  (if (null? (cdr x))
+      x
+      (last-pair (cdr x))))
+;这是错误的，因为用的是equal?,不唯一
+(define (loop? x)
+  (define identity (cons '() '()))
+  (cond ((null? x) #f)
+        ((equal? identity (car x)) #t)
+        (else (set-car! x identity)
+              (loop? (cdr x)))))
+(define (loop?-1 x)
+  (define identity (cons '() '()))
+  (define (loop?-iter x)
+    (cond ((null? x) #f)
+          ((eq? identity (car x)) #t)
+          (else (set-car! x identity)
+                (loop?-iter (cdr x)))))
+  (loop?-iter x))
+(define (loop?-2 x)
+  (let ((identity '(())))
+    (define (loop?-iter x)
+      (cond ((null? x) #f)
+            ((eq? identity (car x)) #t)
+            (else (set-car! x identity)
+                  (loop?-iter (cdr x)))))
+    (loop?-iter x)))
+;3.19
+(define (loop?-3 x)
+  (define (loop?-iter x y)
+    (cond
+     ((eq? x y) #t)
+     ((or (null? (cdr x))
+          (null? (cdr y))
+          (null? (cddr y))) #f)
+     ((loop?-iter (cdr x) (cddr y)))))
+  (cond ((or (null? x)
+             (null? (cdr x)))
+         #f)
+        (else (loop?-iter x (cdr x)))))
+(define x '(1 (2 3) 1))
+(define loop (begin
+               (set-cdr! (last-pair x) x)
+x               x))

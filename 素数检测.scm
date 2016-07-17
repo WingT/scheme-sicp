@@ -1,0 +1,17 @@
+(define (min-divisor n)
+  (define (find-divisor test)
+    (cond ((> (* test test) n) n)
+          ((= (remainder n test) 0) test)
+          (else (find-divisor (+ test 1)))))
+  (find-divisor 2))
+(define (is-prime? n)
+  (= (min-divisor n) n))
+(define (test n)
+  (cond ((> n 2)
+         (begin
+           (display n)
+           (display "\n")
+           (test (- n 1))))))
+(test 10)
+
+(a b (c d) ad)

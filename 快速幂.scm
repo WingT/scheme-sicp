@@ -1,0 +1,16 @@
+(define (fast-expt a n)
+  (define(expt-iter b a n)
+    (if (= n 0)
+        b
+    (if (= (remainder n 2) 0)
+        (expt-iter b (* a a) (/ n 2))
+        (expt-iter (* b a) a (- n 1))))
+    )
+  (expt-iter 1 a n))
+(define (test n)
+  (cond ((>= n 0)
+         (begin
+           (display (fast-expt 2 n))
+           (display "\n")
+           (test (- n 1))))))
+  (test 10)
