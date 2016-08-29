@@ -3,6 +3,10 @@
 (define (analyze exp)
   (cond ((self-evaluating? exp) (analyze-self-evaluating exp))
         ((amb? exp) (analyze-amb exp))
+        ;;4.52
+        ((if-fail? exp) (analyze-if-fail exp))
+        ;;4.54
+        ((require? exp) (analyze-require exp))
         ((quoted? exp) (analyze-quoted exp))
         ((variable? exp) (analyze-variable exp))
         ((assignment? exp) (analyze-assignment exp))
@@ -18,6 +22,29 @@
         ((application? exp) (analyze-application exp))
         (else
          (error "Unknown expression type -- ANALYZE" exp))))
+;;4.52
+(define (if-fail? exp) (tagged-list? exp 'if-fail))
+(define (analyze-if-fail exp)
+  (let ((cproc (analyze (cadr exp)))
+        (aproc (analyze (caddr exp))))
+    (lambda (env succeed fail)
+      (cproc env
+             succeed
+             (lambda ()
+               (aproc env
+                      succeed
+                      fail))))))
+;;4.54
+(define (require? exp) (tagged-list? exp 'require))
+(define (analyze-require exp)
+  (let ((pproc (analyze (cadr exp))))
+    (lambda (env succeed fail)
+      (pproc env
+             (lambda (pred-value fail2)
+               (if (not pred-value)
+                   (fail2)
+                   (succeed 'ok fail2)))
+             fail))))
 (define (analyze-amb exp)
   (let ((cprocs (map analyze (amb-choices exp))))
     (lambda (env succeed fail)
@@ -404,7 +431,9 @@
         (list '<= <=)
         (list '>= >=)
         (list 'remainder remainder)
-        (list 'eq? eq?)))
+        (list 'eq? eq?)
+        (list 'even? even?)
+        (list 'odd? odd?)))
 (define (primitive-procedure-names)
   (map car primitive-procedures))
 (define (primitive-procedure-objects)
